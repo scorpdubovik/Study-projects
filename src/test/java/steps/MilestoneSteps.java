@@ -9,9 +9,7 @@ import pages.MilestonePage;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.byXpath;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
-import static tests.HW_MilestoneTests.addMilestoneName;
-import static tests.HW_MilestoneTests.addProjectName;
+import static tests.DB_MilestoneTests.addMilestoneName;
 
 public class MilestoneSteps {
     private MilestonePage milestonePage = new MilestonePage();
@@ -19,7 +17,7 @@ public class MilestoneSteps {
 
     public MilestonePage addMilestone(Project project, Milestone milestone) {
         dashboardPage.openPage();
-        $(byText(addProjectName)).click();
+        $(byText(project.getName())).click();
         $(By.id("navigation-overview-addmilestones")).click();
 
         milestonePage.getNameField().val(milestone.getName());
@@ -33,9 +31,10 @@ public class MilestoneSteps {
 
     public MilestonePage updateMilestone(Project project, Milestone milestone) {
         dashboardPage.openPage();
-        $(byText(addProjectName)).click();
+        $(byText(project.getName())).click();
         $(byText(addMilestoneName)).click();
         $(".toolbar-button.toolbar-button-last.content-header-button.button-edit").click();
+        milestonePage = new MilestonePage();
 
         milestonePage.getNameField().val(milestone.getName());
         milestonePage.getReferencesField().val(milestone.getReferences());
@@ -46,9 +45,9 @@ public class MilestoneSteps {
         return milestonePage;
     }
 
-    public MilestonePage deleteMilestone() {
+    public MilestonePage deleteMilestone(Project project) {
         dashboardPage.openPage();
-        $(byText(addProjectName)).click();
+        $(byText(project.getName())).click();
         $("#navigation-milestones").click();
         $(".icon-small-delete").click();
         $(byXpath("//a[@class='button button-left button-positive button-disabled button-hidden button-no-margin-right dialog-action-secondary']/preceding-sibling::a")).click();

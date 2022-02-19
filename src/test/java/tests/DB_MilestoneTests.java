@@ -11,59 +11,52 @@ import pages.MilestonePage;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 
-public class HW_MilestoneTests extends BaseTest {
-    Project project;
-    public static String addProjectName;
-    public static String addMilestoneName;
+public class DB_MilestoneTests extends BaseTest {
+
+    private Project newProject;
+    private Milestone addMilestone;
     private MilestonePage milestonePage;
     private AddProjectPage addProjectPage;
+    public static String addMilestoneName;
+
+    @Test
+    public void createMilestoneTableTest() {
+        db_milestoneSteps.createMilestoneTable(dataBaseService);
+    }
 
     @Test
     public void addProjectTest() {
-        Project project = Project.builder()
-                .name("Project1011")
+        newProject = Project.builder()
+                .name("Project2022")
                 .announcement("My project")
                 .isShowAnnouncement(true)
                 .typeOfProject(ProjectType.SINGLE_SUITE_MODE)
                 .build();
-        addProjectName = project.getName();
 
-        addProjectPage = projectSteps.addProject(project);
+        addProjectPage = projectSteps.addProject(newProject);
         addProjectPage.getSuccessField().shouldBe(visible).shouldHave(text("Successfully added the new project."));
     }
 
     @Test(dependsOnMethods = "addProjectTest")
     public void addMilestoneTest() {
-        Milestone milestone = Milestone.builder()
-                .name("Sprint1")
-                .description("My new Milestone")
-                .references("TR-1")
-                .startDate("2/14/2022")
-                .endDate("2/25/2022")
-                .build();
-        addMilestoneName = milestone.getName();
+        addMilestone = db_milestoneSteps.createMilestoneFromDB(dataBaseService, 1);
+        addMilestoneName = addMilestone.getName();
 
-        milestonePage = milestoneSteps.addMilestone(project, milestone);
+        milestonePage = milestoneSteps.addMilestone(newProject, addMilestone);
         milestonePage.getSuccessField().shouldBe(visible).shouldHave(text("Successfully added the new milestone."));
     }
 
     @Test(dependsOnMethods = {"addProjectTest", "addMilestoneTest"})
     public void updateMilestoneTest() {
-        Milestone milestoneUpdated = Milestone.builder()
-                .name("Sprint1 Updated")
-                .description("My updated Milestone")
-                .references("Updated")
-                .startDate("2/10/2022")
-                .endDate("2/28/2022")
-                .build();
+        Milestone updateMilestone = db_milestoneSteps.createMilestoneFromDB(dataBaseService, 2);
 
-        milestonePage = milestoneSteps.updateMilestone(project, milestoneUpdated);
+        milestonePage = milestoneSteps.updateMilestone(newProject, updateMilestone);
         milestonePage.getSuccessField().shouldBe(visible).shouldHave(text("Successfully updated the milestone."));
     }
 
     @Test(dependsOnMethods = {"addProjectTest", "addMilestoneTest", "updateMilestoneTest"})
     public void deleteMilestoneTest() {
-        milestonePage = milestoneSteps.deleteMilestone();
+        milestonePage = milestoneSteps.deleteMilestone(newProject);
         milestonePage.getSuccessField().shouldBe(visible).shouldHave(text("Successfully deleted the milestone (s)."));
     }
 }
